@@ -3,8 +3,12 @@ import 'package:get/get.dart';
 import 'package:metime/Constants/constant.dart';
 import 'package:metime/View/AdminScreens/bottom_navigation_bar.dart';
 import 'package:metime/View/UserScreen/bottom_navigation_bar.dart';
+import 'package:metime/Widgets/custom_dialog.dart';
+import 'package:metime/Widgets/custom_snackbar.dart';
 import 'package:metime/Widgets/custome_button.dart';
 import 'package:metime/Widgets/custome_textfield.dart';
+import 'package:metime/models/appuser.dart';
+import 'package:metime/services/firebase_auth/firebase_auth.dart';
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({Key? key}) : super(key: key);
@@ -16,6 +20,22 @@ class AuthenticationScreen extends StatefulWidget {
 class _AuthenticationScreenState extends State<AuthenticationScreen>
     with TickerProviderStateMixin {
   var _val = 0;
+
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordNameController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordNameController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,13 +88,15 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
                           const SizedBox(
                             height: 10.0,
                           ),
-                          const CustomeTextField(
+                          CustomeTextField(
+                            controller: _emailController,
                             hintText: 'Email',
                           ),
                           const SizedBox(
                             height: 10.0,
                           ),
-                          const CustomeTextField(
+                          CustomeTextField(
+                            controller: _passwordNameController,
                             hintText: 'Password',
                           ),
                           const SizedBox(
@@ -82,8 +104,25 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
                           ),
                           CustomButton(
                             text: 'Sign in',
-                            onPressed: () {
-                              Get.to(() => const BottomNavigationBarScreen());
+                            onPressed: () async {
+                              showLoading(context);
+                              final String response = await FirebaseAuthServices
+                                  .signInWithEmailAndPassword(
+                                      email: _emailController.text,
+                                      password: _passwordNameController.text);
+                              if (response == 'admin') {
+                                Navigator.pop(context);
+                                Get.to(() => const BottomNavigationBarScreen());
+                              } else if (response == 'user') {
+                                print('success');
+                                Navigator.pop(context);
+                                Get.to(
+                                  () => const UserBottomNavigationBarScreen(),
+                                );
+                              } else {
+                                Navigator.pop(context);
+                                showCustomSnackBar(response);
+                              }
                             },
                           ),
                         ],
@@ -93,31 +132,37 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
                         children: [
-                          const CustomeTextField(
+                          CustomeTextField(
+                            controller: _firstNameController,
                             hintText: 'First name',
                           ),
                           const SizedBox(
                             height: 10.0,
                           ),
-                          const CustomeTextField(
+                          CustomeTextField(
                             hintText: 'Last name',
+                            controller: _lastNameController,
                           ),
                           const SizedBox(
                             height: 10.0,
                           ),
-                          const CustomeTextField(
-                            hintText: 'Phone number',
+                          CustomeTextField(
+                            keyboardType: TextInputType.emailAddress,
+                            controller: _emailController,
+                            hintText: 'Email',
                           ),
                           const SizedBox(
                             height: 10.0,
                           ),
-                          const CustomeTextField(
+                          CustomeTextField(
+                            controller: _passwordNameController,
                             hintText: 'Password',
                           ),
                           const SizedBox(
                             height: 10.0,
                           ),
-                          const CustomeTextField(
+                          CustomeTextField(
+                            controller: _confirmPasswordController,
                             hintText: 'Confirm Password',
                           ),
                           const SizedBox(
@@ -142,8 +187,33 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
                                 ),
                               ),
                               GestureDetector(
-                                onTap: () {
-                                  Get.to(() => const UserBottomNavigationBarScreen());
+                                onTap: () async {
+                                  if (_passwordNameController.text ==
+                                      _confirmPasswordController.text) {
+                                    AppUser appUser = AppUser(
+                                        firstName: _firstNameController.text,
+                                        lastName: _lastNameController.text,
+                                        email: _emailController.text);
+                                    showLoading(context);
+                                    String response = await FirebaseAuthServices
+                                        .signUpWithEmailAndPassword(
+                                      appUser: appUser,
+                                      password: _passwordNameController.text,
+                                    );
+                                    if (response == 'success') {
+                                      Navigator.pop(context);
+                                      Get.to(
+                                        () =>
+                                            const UserBottomNavigationBarScreen(),
+                                      );
+                                    } else {
+                                      Navigator.pop(context);
+                                      showCustomSnackBar(response);
+                                    }
+                                  } else {
+                                    Get.snackbar(
+                                        'Error', 'Password does not match');
+                                  }
                                 },
                                 child: Container(
                                   height: 50,

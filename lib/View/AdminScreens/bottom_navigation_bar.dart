@@ -1,4 +1,3 @@
-
 import 'package:bottom_bar/bottom_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,8 @@ class BottomNavigationBarScreen extends StatefulWidget {
   const BottomNavigationBarScreen({Key? key}) : super(key: key);
 
   @override
-  State<BottomNavigationBarScreen> createState() => _BottomNavigationBarScreenState();
+  State<BottomNavigationBarScreen> createState() =>
+      _BottomNavigationBarScreenState();
 }
 
 class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
@@ -34,10 +34,10 @@ class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
           : _selectedIndex == 0
               ? const Home()
               : _selectedIndex == 1
-                  ? const AdminHistory():
-      _selectedIndex == 2
-          ? const History()
-                  : Container(),
+                  ? const AdminHistory()
+                  : _selectedIndex == 2
+                      ? const History()
+                      : Container(),
       bottomNavigationBar: BottomBar(
         items: [
           BottomBarItem(

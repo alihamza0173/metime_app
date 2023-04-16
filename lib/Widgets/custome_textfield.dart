@@ -9,6 +9,7 @@ class CustomeTextField extends StatelessWidget {
   final int? maxLines;
   final bool? hidePassword;
   final bool? readOnly;
+  final TextInputType? keyboardType;
 
   const CustomeTextField({
     super.key,
@@ -18,6 +19,7 @@ class CustomeTextField extends StatelessWidget {
     this.labelText,
     this.hidePassword,
     this.readOnly,
+    this.keyboardType,
   });
 
   @override
@@ -33,6 +35,7 @@ class CustomeTextField extends StatelessWidget {
       ),
       child: TextFormField(
         controller: controller,
+        keyboardType: keyboardType,
         readOnly: readOnly != null || readOnly == true ? true : false,
         style: customFontStyle(
           fontSize: 14.0,
